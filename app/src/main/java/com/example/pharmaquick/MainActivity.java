@@ -2,6 +2,7 @@ package com.example.pharmaquick;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 public class MainActivity extends AppCompatActivity {
@@ -10,5 +11,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        startActivity(new Intent(MainActivity.this,MapsActivity.class));
+//        startActivity(new Intent(MainActivity.this,BarcodeScanner.class));
+
     }
 }
