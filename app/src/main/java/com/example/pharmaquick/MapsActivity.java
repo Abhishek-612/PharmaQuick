@@ -42,6 +42,8 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.maps.android.SphericalUtil;
 
 import java.text.SimpleDateFormat;
@@ -65,7 +67,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Circle mCircle;
     private Marker mMarker;
     Timer timer;
-    TimerTask timerTask;
     final Handler handler = new Handler();
     double radiusInMeters;
     CircleOptions circleOptions;
@@ -82,13 +83,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+//        Places.initialize(getApplicationContext(), "AIzaSyDe9CUiOhE5rFrlcZNvd34Iu8T7dLa1diE");
+//        PlacesClient placesClient = Places.createClient(this);
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-//        mMap.addMarker(new MarkerOptions().position(current).tit        mMap.addMarker(new MarkerOptions().position(current).title("Marker in Sydney"));
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(current));        mMap.addMarker(new MarkerOptions().position(current).title("Marker in Sydney"));
+//        mMap.addMarker(new MarkerOptions().position(current).title("Marker in Sydney"));
+//        mMap.moveCamera(CameraUpdateFactory.newLatLng(current));
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(current));
     }
 
@@ -225,38 +229,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     }
-
-
-
-    private void increase(){
-        radiusInMeters+=250.0;
-        circleOptions.radius(radiusInMeters);
-        mCircle = mMap.addCircle(circleOptions);
-    }
-
-//
-//    public void initializeTimerTask() {
-//
-//        timerTask = new TimerTask() {
-//            public void run() {
-//
-//                //use a handler to run a toast that shows the current timestamp
-//                handler.post(new Runnable() {
-//                    public void run() {
-//                        //get the current timeStamp
-//                        Calendar calendar = Calendar.getInstance();
-//                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd:MMMM:yyyy HH:mm:ss a");
-//                        final String strDate = simpleDateFormat.format(calendar.getTime());
-//
-//                        //show the toast
-//                        int duration = Toast.LENGTH_SHORT;
-//                        Toast toast = Toast.makeText(getApplicationContext(), strDate, duration);
-//                        toast.show();
-//                    }
-//                });
-//            }
-//        };
-//    }
 
 
 }
