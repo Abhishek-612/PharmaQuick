@@ -18,8 +18,10 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -33,12 +35,20 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.maps.android.SphericalUtil;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
@@ -46,12 +56,19 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    private LocationManager locationManager;
     private LatLng current;
     private double latitude,longitude;
 
     int PERMISSION_ID = 44;
     FusedLocationProviderClient mFusedLocationClient;
+
+    private Circle mCircle;
+    private Marker mMarker;
+    Timer timer;
+    TimerTask timerTask;
+    final Handler handler = new Handler();
+    double radiusInMeters;
+    CircleOptions circleOptions;
 
 
     @Override
@@ -67,16 +84,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
     }
 
-
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -133,10 +140,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                         requestNewLocationData();
                                     } else {
                                         current = new LatLng(location.getLatitude(), location.getLongitude());
-                                        mMap.addMarker(new MarkerOptions().position(current).title("Current Location"));
-                                        mMap.moveCamera(CameraUpdateFactory.newLatLng(current));
-                                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(current, 16.0f));
-                                        Toast.makeText(MapsActivity.this, location.getLatitude() + ", " + location.getLongitude(), Toast.LENGTH_SHORT).show();
+
+                                        updateMap(current);
                                     }
                                 }
                             }
@@ -173,12 +178,87 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 public void onLocationResult(LocationResult locationResult) {
                     Location mLastLocation = locationResult.getLastLocation();
                     current = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-                    mMap.addMarker(new MarkerOptions().position(current).title("Current Location"));
-                    mMap.moveCamera(CameraUpdateFactory.newLatLng(current));
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(current, 16.0f));
-                    Toast.makeText(MapsActivity.this, mLastLocation.getLatitude()+", "+mLastLocation.getLongitude(), Toast.LENGTH_SHORT).show();
 
+                    updateMap(current);
                 }
             };
+
+    private void updateMap(LatLng current){
+        mMap.addMarker(new MarkerOptions().position(current).title("Current Location"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(current));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(current, 16.0f));
+        drawMarkerWithCircle(current);
+        Double dis = SphericalUtil.computeDistanceBetween(current,new LatLng(0,0));
+        Toast.makeText(MapsActivity.this, dis.toString(), Toast.LENGTH_SHORT).show();
+
+    }
+
+    private void drawMarkerWithCircle(LatLng position){
+        radiusInMeters = 500.0;
+        int strokeColor = 0xffff0000; //red outline
+        int shadeColor = 0x44ff0000; //opaque red fill
+
+        circleOptions = new CircleOptions().center(position).radius(radiusInMeters).fillColor(shadeColor).strokeColor(strokeColor).strokeWidth(8);
+        mCircle = mMap.addCircle(circleOptions);
+
+        MarkerOptions markerOptions = new MarkerOptions().position(position);
+        mMarker = mMap.addMarker(markerOptions);
+
+
+        timer = new Timer();
+        TimerTask timerTask = new TimerTask() {
+            public void run() {
+                radiusInMeters+=250.0;
+                circleOptions.radius(radiusInMeters);
+                Log.i("time","reach");
+
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mMap.clear();
+                        mCircle = mMap.addCircle(circleOptions);
+                    }
+                });
+            }
+        };
+        timer.schedule(timerTask, 0, 10000);
+
+
+    }
+
+
+
+    private void increase(){
+        radiusInMeters+=250.0;
+        circleOptions.radius(radiusInMeters);
+        mCircle = mMap.addCircle(circleOptions);
+    }
+
+//
+//    public void initializeTimerTask() {
+//
+//        timerTask = new TimerTask() {
+//            public void run() {
+//
+//                //use a handler to run a toast that shows the current timestamp
+//                handler.post(new Runnable() {
+//                    public void run() {
+//                        //get the current timeStamp
+//                        Calendar calendar = Calendar.getInstance();
+//                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd:MMMM:yyyy HH:mm:ss a");
+//                        final String strDate = simpleDateFormat.format(calendar.getTime());
+//
+//                        //show the toast
+//                        int duration = Toast.LENGTH_SHORT;
+//                        Toast toast = Toast.makeText(getApplicationContext(), strDate, duration);
+//                        toast.show();
+//                    }
+//                });
+//            }
+//        };
+//    }
+
+
 }
+
 
