@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateUI(GoogleSignInAccount account){
         if(account!=null)
-            startActivity(new Intent(MainActivity.this,MapsActivity.class));
+            startActivity(new Intent(MainActivity.this,HomeActivity.class));
     }
 
     private void signIn() {
