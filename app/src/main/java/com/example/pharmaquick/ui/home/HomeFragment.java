@@ -2,6 +2,7 @@ package com.example.pharmaquick.ui.home;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +29,12 @@ import com.example.pharmaquick.RecyclerViewClickListener;
 
 public class HomeFragment extends Fragment {
 
+
+    SharedPreferences sharedpreferences;
+    public static final String MyPREFERENCES = "MyCart" ;
+    public static final String Count = "countKey";
+
+
     private Button button;
     private AutoCompleteTextView autoCompleteTextView;
     private RecyclerView recyclerView;
@@ -48,14 +55,20 @@ public class HomeFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
 
         autoCompleteTextView.setThreshold(1);
-        autoCompleteTextView.setAdapter(getEmailAddressAdapter(getContext()));
-        // specify an adapter (see also next example)
+        autoCompleteTextView.setAdapter(getAutoCompleteAdapter(getContext()));
+
+
         RecyclerViewClickListener listener = new RecyclerViewClickListener() {
             @Override
             public void onClick(View view, int position) {
                 Toast.makeText(getContext(), myDataset[position], Toast.LENGTH_SHORT).show();
+                SharedPreferences.Editor editor = sharedpreferences.edit();
+                editor.putInt(myDataset[position],sharedpreferences.getInt(myDataset[position],0)+1);
+                editor.commit();
             }
         };
+
+
         mAdapter = new MedAdapter(myDataset,listener);
         recyclerView.setAdapter(mAdapter);
 
@@ -69,13 +82,16 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(getContext(), MapsActivity.class));
+                Toast.makeText(getContext(), sharedpreferences.getAll().keySet().toString(), Toast.LENGTH_SHORT).show();
             }
         });
+
+        sharedpreferences = getActivity().getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
 
 
     }
 
-    private ArrayAdapter<String> getEmailAddressAdapter(Context context) {
+    private ArrayAdapter<String> getAutoCompleteAdapter(Context context) {
         return new ArrayAdapter<String>(context, android.R.layout.simple_dropdown_item_1line, myDataset);
     }
 

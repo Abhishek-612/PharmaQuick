@@ -91,7 +91,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-//        mMap.addMarker(new MarkerOptions().position(current).title("Marker in Sydney"));
+        mMap.addMarker(new MarkerOptions().position(current).title("Marker in Sydney"));
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(current));
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(current));
     }
@@ -193,7 +193,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(current, 16.0f));
         drawMarkerWithCircle(current);
         Double dis = SphericalUtil.computeDistanceBetween(current,new LatLng(0,0));
-        Toast.makeText(MapsActivity.this, dis.toString(), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(MapsActivity.this, dis.toString(), Toast.LENGTH_SHORT).show();
 
     }
 

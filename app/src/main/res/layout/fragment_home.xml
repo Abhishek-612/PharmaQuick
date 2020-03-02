@@ -21,11 +21,10 @@
         />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/button"
         android:id="@+id/med_list"
-        android:scrollbars="vertical"
-    />
+        android:layout_width="match_parent"
+        android:layout_height="559dp"
+        android:layout_below="@id/button"
+        android:scrollbars="vertical" />
 
 </LinearLayout>
