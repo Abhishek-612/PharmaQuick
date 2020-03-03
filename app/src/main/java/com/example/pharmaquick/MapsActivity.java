@@ -46,9 +46,13 @@ import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.maps.android.SphericalUtil;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -71,6 +75,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     double radiusInMeters;
     CircleOptions circleOptions;
     MarkerOptions markerOptions;
+
+    private ArrayList<PharmacyStore> pharmacyStores;
 
 
     @Override
@@ -141,9 +147,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     if (location == null) {
                                         requestNewLocationData();
                                     } else {
-                                        current = new LatLng(location.getLatitude(), location.getLongitude());
-
-                                        updateMap(current);
+                                        handleLocation(location);
                                     }
                                 }
                             }
@@ -179,9 +183,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 @Override
                 public void onLocationResult(LocationResult locationResult) {
                     Location mLastLocation = locationResult.getLastLocation();
-                    current = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-
-                    updateMap(current);
+                    handleLocation(mLastLocation);
                 }
             };
 
@@ -203,28 +205,60 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         circleOptions = new CircleOptions().center(position).radius(radiusInMeters).fillColor(shadeColor).strokeColor(strokeColor).strokeWidth(8);
         mCircle = mMap.addCircle(circleOptions);
 
-        markerOptions = new MarkerOptions().position(position);
+        markerOptions = new MarkerOptions().position(position).title("Your location");
         mMarker = mMap.addMarker(markerOptions);
 
 
         timer = new Timer();
         TimerTask timerTask = new TimerTask() {
             public void run() {
-                radiusInMeters+=250.0;
-                circleOptions.radius(radiusInMeters);
-                Log.i("time","reach");
+                if(radiusInMeters<=2000.0) {
+                    radiusInMeters += 250.0;
+                    circleOptions.radius(radiusInMeters);
+                    Log.i("time", "reach");
 
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mMap.clear();
-                        mCircle = mMap.addCircle(circleOptions);
-                        mMarker = mMap.addMarker(markerOptions);
-                    }
-                });
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mMap.clear();
+                            mCircle = mMap.addCircle(circleOptions);
+                            mMarker = mMap.addMarker(markerOptions);
+                            updateMarkers(radiusInMeters);
+                        }
+                    });
+                }
+                else
+                    this.cancel();
             }
         };
-        timer.schedule(timerTask, 0, 10000);
+        timer.schedule(timerTask, 0, 5000);
+    }
+
+    private void handleLocation(Location location) {
+        current = new LatLng(location.getLatitude(), location.getLongitude());
+        System.out.println("LATLNG: "+location.getLatitude()+","+ location.getLongitude());
+
+        pharmacyStores = new PharmacyLocator(getBaseContext(),location).getPharmacyStores();
+
+        //TODO: Write in a better way
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        updateMap(current);
+    }
+
+    private void updateMarkers(double radiusInMeters){
+
+         for(PharmacyStore store : pharmacyStores){
+             if(store.getDistance()<radiusInMeters) {
+                 MarkerOptions markerOptions = new MarkerOptions().position(new LatLng(store.getLatitude(), store.getLongitude())).title(store.getName());
+                 mMarker = mMap.addMarker(markerOptions);
+             }
+
+         }
     }
 
 
