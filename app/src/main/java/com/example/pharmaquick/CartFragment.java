@@ -20,6 +20,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,6 +44,7 @@ public class CartFragment  extends BottomSheetDialogFragment {
     private RecyclerView.LayoutManager layoutManager;
     private SharedPreferences sharedPreferences;
     private HashMap<String,Integer> cartList = new HashMap<>();
+    private DatabaseReference parentUserNode;
 
     public static CartFragment newInstance() {
         return new CartFragment();
@@ -65,6 +72,12 @@ public class CartFragment  extends BottomSheetDialogFragment {
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
 
+        parentUserNode = FirebaseDatabase
+                .getInstance()
+                .getReference("users")
+                .child(FirebaseAuth.getInstance().getUid());
+
+
         RecyclerViewClickListener listener = new RecyclerViewClickListener() {
             @Override
             public void onClick(View view, int position) {
@@ -85,12 +98,21 @@ public class CartFragment  extends BottomSheetDialogFragment {
             @Override
             public void onClick(View view) {
                 Toast.makeText(getContext(), "Proceed to payment", Toast.LENGTH_SHORT).show();
+                parentUserNode.child("currentOrder").child("items").setValue(cartList);
+                parentUserNode.child("currentOrder").child("delivered").setValue(false);
             }
         });
 
         clearCart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                DatabaseReference thisRef = parentUserNode.child("pastOrders").push();
+                thisRef.child("items").setValue(cartList);
+                thisRef.child("items").setValue(true);
+                thisRef.child("timestamp").setValue(ServerValue.TIMESTAMP);
+                thisRef.child("address").child("name").setValue("address_name");
+                //TODO:Remove above later
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.clear();
                 editor.apply();

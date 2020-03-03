@@ -70,6 +70,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     final Handler handler = new Handler();
     double radiusInMeters;
     CircleOptions circleOptions;
+    MarkerOptions markerOptions;
 
 
     @Override
@@ -91,9 +92,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        mMap.addMarker(new MarkerOptions().position(current).title("Marker in Sydney"));
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(current));
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(current));
     }
 
 
@@ -205,7 +203,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         circleOptions = new CircleOptions().center(position).radius(radiusInMeters).fillColor(shadeColor).strokeColor(strokeColor).strokeWidth(8);
         mCircle = mMap.addCircle(circleOptions);
 
-        MarkerOptions markerOptions = new MarkerOptions().position(position);
+        markerOptions = new MarkerOptions().position(position);
         mMarker = mMap.addMarker(markerOptions);
 
 
@@ -221,13 +219,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     public void run() {
                         mMap.clear();
                         mCircle = mMap.addCircle(circleOptions);
+                        mMarker = mMap.addMarker(markerOptions);
                     }
                 });
             }
         };
         timer.schedule(timerTask, 0, 10000);
-
-
     }
 
 

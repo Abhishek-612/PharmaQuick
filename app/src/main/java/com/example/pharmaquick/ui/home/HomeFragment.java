@@ -82,7 +82,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(getContext(), MapsActivity.class));
-                Toast.makeText(getContext(), sharedpreferences.getAll().keySet().toString(), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getContext(), sharedpreferences.getAll().keySet().toString(), Toast.LENGTH_SHORT).show();
             }
         });
 
