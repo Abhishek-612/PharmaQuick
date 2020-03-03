@@ -97,29 +97,36 @@ public class CartFragment  extends BottomSheetDialogFragment {
         orderNow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getContext(), "Proceed to payment", Toast.LENGTH_SHORT).show();
-                parentUserNode.child("currentOrder").child("items").setValue(cartList);
-                parentUserNode.child("currentOrder").child("delivered").setValue(false);
+                if(cartList.isEmpty())
+                    Toast.makeText(getContext(), "Empty Cart", Toast.LENGTH_SHORT).show();
+                else {
+                    Toast.makeText(getContext(), "Proceed to payment", Toast.LENGTH_SHORT).show();
+                    parentUserNode.child("currentOrder").child("items").setValue(cartList);
+                    parentUserNode.child("currentOrder").child("delivered").setValue(false);
+                    parentUserNode.child("address").child("name").setValue("address_name");
+                }
             }
         });
 
         clearCart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (!cartList.isEmpty()) {
+                    DatabaseReference thisRef = parentUserNode.child("pastOrders").push();
+                    thisRef.child("items").setValue(cartList);
+                    thisRef.child("delivered").setValue(true);
+                    thisRef.child("timestamp").setValue(ServerValue.TIMESTAMP);
 
-                DatabaseReference thisRef = parentUserNode.child("pastOrders").push();
-                thisRef.child("items").setValue(cartList);
-                thisRef.child("items").setValue(true);
-                thisRef.child("timestamp").setValue(ServerValue.TIMESTAMP);
-                thisRef.child("address").child("name").setValue("address_name");
-                //TODO:Remove above later
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.clear();
-                editor.apply();
+                    parentUserNode.child("currentOrder").removeValue();
+                    //TODO:Remove above later
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.clear();
+                    editor.apply();
 
-                cartList.clear();
-                mAdapter = new CartAdapter(cartList);
-                recyclerView.setAdapter(mAdapter);
+                    cartList.clear();
+                    mAdapter = new CartAdapter(cartList);
+                    recyclerView.setAdapter(mAdapter);
+                }
             }
         });
     }
