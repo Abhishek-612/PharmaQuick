@@ -3,7 +3,9 @@ package com.example.pharmaquick;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.view.LayoutInflater;
@@ -26,6 +28,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,6 +49,7 @@ public class CartFragment  extends BottomSheetDialogFragment {
     private SharedPreferences sharedPreferences;
     private HashMap<String,Integer> cartList = new HashMap<>();
     private DatabaseReference parentUserNode;
+
 
     public static CartFragment newInstance() {
         return new CartFragment();
@@ -105,6 +110,7 @@ public class CartFragment  extends BottomSheetDialogFragment {
                     parentUserNode.child("currentOrder").child("delivered").setValue(false);
                     parentUserNode.child("address").child("name").setValue("address_name");
                 }
+
             }
         });
 
