@@ -7,24 +7,26 @@
 
     <AutoCompleteTextView
         android:id="@+id/med_find"
+        android:paddingTop="20dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:layout_above="@id/button"
+        android:hint="Looking for something?"
         android:paddingBottom="20dp"/>
 
-    <Button
-        android:id="@+id/button"
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Search"
-        />
+        android:text="Browse"
+        android:textSize="30sp"
+        android:textAlignment="center"/>
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/med_list"
+        android:paddingTop="40dp"
         android:layout_width="match_parent"
         android:layout_height="559dp"
-        android:layout_below="@id/button"
         android:scrollbars="vertical" />
 
 </LinearLayout>

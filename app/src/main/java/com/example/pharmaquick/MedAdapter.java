@@ -9,10 +9,12 @@ import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
+
 public class MedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private RecyclerViewClickListener mListener;
-    private String[] myDataset;
+    private ArrayList<String> myDataset;
     TextView textView;
 
     public static class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -27,13 +29,13 @@ public class MedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         @Override
         public void onClick(View view) {
-            mListener.onClick(view, getAdapterPosition());
+            mListener.onClick(view,getAdapterPosition());
         }
 
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public MedAdapter(String[] myDataset, RecyclerViewClickListener mListener) {
+    public MedAdapter(ArrayList<String> myDataset, RecyclerViewClickListener mListener) {
         this.myDataset = myDataset;
         this.mListener = mListener;
     }
@@ -54,7 +56,7 @@ public class MedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return myDataset.length;
+        return myDataset.size();
     }
 
     // Replace the contents of a view (invoked by the layout manager)
@@ -64,7 +66,7 @@ public class MedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         // - replace the contents of the view with that element
         if (holder instanceof MyViewHolder) {
             MyViewHolder viewHolder = (MyViewHolder) holder;
-        textView.setText(myDataset[position]);
+        textView.setText(myDataset.get(position));
 
         }
 
