@@ -77,12 +77,8 @@ public class CartFragment  extends BottomSheetDialogFragment {
     private ImageView imageView;
     private SharedPreferences sharedPreferences;
     private HashMap<String,Integer> cartList = new HashMap<>();
-    private DatabaseReference parentUserNode;
+    private DatabaseReference parentUserNode,currentOrder;
     private boolean prescriptiton=false;
-    private double currLat=0,currLong=0;
-
-    int PERMISSION_ID = 44;
-    FusedLocationProviderClient mFusedLocationClient;
 
     private Uri resultUri=null;
     private String imageBase64;
@@ -117,6 +113,10 @@ public class CartFragment  extends BottomSheetDialogFragment {
         recyclerView.setHasFixedSize(false);
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
+
+        currentOrder = FirebaseDatabase
+                .getInstance()
+                .getReference("Orders").push();
 
         parentUserNode = FirebaseDatabase
                 .getInstance()
@@ -162,11 +162,27 @@ public class CartFragment  extends BottomSheetDialogFragment {
                     Toast.makeText(getContext(), "Empty Cart", Toast.LENGTH_SHORT).show();
                 else {
                     Toast.makeText(getContext(), "Proceed to payment", Toast.LENGTH_SHORT).show();
-                    parentUserNode.child("currentOrder").child("items").setValue(cartList);
-                    parentUserNode.child("currentOrder").child("delivered").setValue(false);
-//                    parentUserNode.child("address").child("name").setValue("address_name");
+                    String key  = currentOrder.getKey();
+                    parentUserNode.child("currentOrder").setValue(key);
+                    currentOrder.child("items").setValue(cartList);
+                    currentOrder.child("delivered").setValue(false);
+                    currentOrder.child("userid").setValue(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                    parentUserNode.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            currentOrder.child("user_address").setValue(dataSnapshot.child("address").getValue());
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
+
                     if(imageView!=null)
-                        parentUserNode.child("currentOrder").child("prescription").setValue(imageBase64);
+                        currentOrder.child("prescription").setValue(imageBase64);
+
+
                 }
                 dismiss();
                 startActivity(new Intent(getContext(), MapsActivity.class));
@@ -248,99 +264,5 @@ public class CartFragment  extends BottomSheetDialogFragment {
         return encodedImage;
     }
 
-
-
-
-
-    private boolean checkPermissions(){
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
-            return true;
-        }
-        return false;
-    }
-
-    private void requestPermissions(){
-        ActivityCompat.requestPermissions(
-                getActivity(),
-                new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
-                PERMISSION_ID
-        );
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == PERMISSION_ID) {
-            if(grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                // Granted. Start getting the location information
-            }
-        }
-    }
-
-    private boolean isLocationEnabled() {
-        LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
-                LocationManager.NETWORK_PROVIDER
-        );
-    }
-
-
-    @SuppressLint("MissingPermission")
-    private void getLastLocation() {
-        if (checkPermissions()) {
-            if (isLocationEnabled()) {
-                mFusedLocationClient.getLastLocation().addOnCompleteListener(
-                        new OnCompleteListener<Location>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Location> task) {
-                                Location location = task.getResult();
-                                if (location == null) {
-                                    requestNewLocationData();
-                                } else {
-                                    handleLocation(location);
-                                }
-                            }
-                        }
-                );
-            } else {
-                Toast.makeText(getContext(), "Turn on location", Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                startActivity(intent);
-            }
-        } else {
-            requestPermissions();
-        }
-    }
-
-    @SuppressLint("MissingPermission")
-    private void requestNewLocationData(){
-
-        LocationRequest mLocationRequest = new LocationRequest();
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval(0);
-        mLocationRequest.setFastestInterval(0);
-        mLocationRequest.setNumUpdates(1);
-
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
-        mFusedLocationClient.requestLocationUpdates(
-                mLocationRequest, mLocationCallback,
-                Looper.myLooper()
-        );
-
-    }
-
-    LocationCallback mLocationCallback = new LocationCallback() {
-        @Override
-        public void onLocationResult(LocationResult locationResult) {
-            Location mLastLocation = locationResult.getLastLocation();
-            handleLocation(mLastLocation);
-        }
-    };
-
-    private void handleLocation(Location location) {
-        currLat=location.getLatitude();
-        currLong=location.getLongitude();
-    }
 
 }

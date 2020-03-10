@@ -142,7 +142,7 @@ public class HomeFragment extends Fragment {
 
     private void addToCart(final int position){
         final boolean[] flag = new boolean[1];
-        medRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        medRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 

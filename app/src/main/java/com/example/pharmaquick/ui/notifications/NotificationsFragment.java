@@ -24,6 +24,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.pharmaquick.CartFragment;
 import com.example.pharmaquick.R;
+import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 import com.theartofdev.edmodo.cropper.CropImage;
@@ -56,6 +57,7 @@ public class NotificationsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
