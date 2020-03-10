@@ -23,7 +23,7 @@
 
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="200dp"
         android:id="@+id/prescription"/>
 
     <LinearLayout
@@ -42,7 +42,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Proceed to Payment"
-            android:id="@+id/order"/>
+            android:id="@+id/order"
+            />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Upload"
+            android:id="@+id/upload_prescription"/>
 
     </LinearLayout>
 

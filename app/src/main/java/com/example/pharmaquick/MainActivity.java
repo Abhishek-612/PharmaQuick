@@ -105,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
             DatabaseReference myRef = parentUserNode.getRef();
             myRef.child("name").setValue(account.getDisplayName());
             myRef.child("email").setValue(account.getEmail());
+            if(account.getPhoneNumber()!=null)
             myRef.child("phone").setValue(account.getPhoneNumber());
 
         }

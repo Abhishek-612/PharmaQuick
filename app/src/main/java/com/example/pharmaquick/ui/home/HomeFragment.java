@@ -151,7 +151,8 @@ public class HomeFragment extends Fragment {
                 SharedPreferences.Editor editor = sharedpreferences.edit();
                 if(flag[0]) {
                     Toast.makeText(getContext(), ": This item requires a prescription", Toast.LENGTH_SHORT).show();
-                    editor.putString(medDataset.get(position)+" prescription",null);
+                    editor.putInt(medDataset.get(position),sharedpreferences.getInt(medDataset.get(position),0)+1);
+                    editor.putBoolean("prescription",true);
                     editor.apply();
                 }
                 else{
